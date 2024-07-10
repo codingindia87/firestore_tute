@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "975486347132",
+    "firebase_url": "https://login-b7e46-default-rtdb.firebaseio.com",
+    "project_id": "login-b7e46",
+    "storage_bucket": "login-b7e46.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:975486347132:android:f55763f15dac4ae72c26f9",
+        "android_client_info": {
+          "package_name": "com.example.firestoretute"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDABbF8S2NRT7Kt-x8VCJTssWD3lN_mBlo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:975486347132:android:c88d66b5bc6867ef2c26f9",
+        "android_client_info": {
+          "package_name": "com.sach.login"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDABbF8S2NRT7Kt-x8VCJTssWD3lN_mBlo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
