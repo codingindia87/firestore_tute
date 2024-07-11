@@ -13,10 +13,26 @@
         android:layout_height="match_parent"
         android:id="@+id/sw_layout">
 
-        <androidx.recyclerview.widget.RecyclerView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/recycler_view"/>
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:id="@+id/recycler_view"/>
+
+            <ProgressBar
+                android:layout_width="33dp"
+                android:layout_height="33dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="5dp"
+                android:visibility="gone"
+                android:id="@+id/l_m_P_bar"/>
+
+        </LinearLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

@@ -11,8 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.firestoretute.databinding.ActivityListWorkBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.ktx.Firebase
@@ -25,6 +28,14 @@ class ListWork : AppCompatActivity() {
 
     private lateinit var adapter: ProductAdapter
 
+    private lateinit var query: Query
+
+    private lateinit var lastData: DocumentSnapshot
+
+    private var isLoading = false
+
+    private var dataAvailable = true
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,27 +44,57 @@ class ListWork : AppCompatActivity() {
 
         binding.btnAdd.setOnClickListener { createAddDialog() }
 
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        val linearLayoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = linearLayoutManager
         adapter = ProductAdapter(this@ListWork,productList)
         binding.recyclerView.adapter = adapter
 
+        query = Firebase.firestore.collection("product")
+            .orderBy("product_ab").limit(10)
         getProducts()
 
         binding.swLayout.setOnRefreshListener {
             productList.clear()
             adapter.notifyDataSetChanged()
+            isLoading = false
+            dataAvailable = true
+            query = Firebase.firestore.collection("product").orderBy("product_ab").limit(10)
             getProducts()
         }
+
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (!isLoading && dataAvailable){
+                    val visibleItemCount = linearLayoutManager.childCount
+                    val totalItemCount = linearLayoutManager.itemCount
+                    val firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition()
+
+                    if (visibleItemCount + firstVisibleItemPosition >= totalItemCount
+                        && firstVisibleItemPosition >= 0
+                        && totalItemCount >= 10
+                        ){
+                        isLoading = true
+                        binding.lMPBar.visibility = View.VISIBLE
+                        query = Firebase.firestore.collection("product")
+                            .orderBy("product_ab")
+                            .startAfter(lastData)
+                            .limit(10)
+                        getProducts()
+                    }
+                }
+            }
+        })
+
 
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun getProducts(){
-        val db = Firebase.firestore
-        db.collection("product")
-            .get()
+        query.get()
             .addOnSuccessListener {
                 if (!it.isEmpty){
+                    lastData = it.documents[it.size() - 1]
                     for (snap in it.documents){
                         val product = snap.toObject<Product>()
                         productList.add(product!!)
@@ -64,10 +105,13 @@ class ListWork : AppCompatActivity() {
                         "Error: Data not found.",
                         Toast.LENGTH_SHORT
                     ).show()
+                    dataAvailable = false
                 }
                 adapter.notifyDataSetChanged()
                 binding.progressBar.visibility = View.GONE
                 if (binding.swLayout.isRefreshing) binding.swLayout.isRefreshing = false
+                binding.lMPBar.visibility = View.GONE
+                isLoading = false
             }.addOnFailureListener {
                 Toast.makeText(
                     this@ListWork,
@@ -76,6 +120,9 @@ class ListWork : AppCompatActivity() {
                 ).show()
                 binding.progressBar.visibility = View.GONE
                 if (binding.swLayout.isRefreshing) binding.swLayout.isRefreshing = false
+                isLoading = false
+                dataAvailable = false
+                binding.lMPBar.visibility = View.GONE
             }
     }
 
