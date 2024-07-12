@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.firestoretute.databinding.ActivityListWorkBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.toObject
@@ -86,6 +88,27 @@ class ListWork : AppCompatActivity() {
             }
         })
 
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                productList.clear()
+                adapter.notifyDataSetChanged()
+                isLoading = false
+                dataAvailable = true
+                query = if (newText!!.isNotEmpty()){
+                    Firebase.firestore.collection("product")
+                        .whereGreaterThanOrEqualTo("product_name",newText)
+                }else{
+                    Firebase.firestore.collection("product").orderBy("product_ab").limit(10)
+                }
+                getProducts()
+                return true
+            }
+
+        })
 
     }
 
